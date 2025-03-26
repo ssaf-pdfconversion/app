@@ -16,8 +16,6 @@ class _MetricasState extends State<Metricas> {
   DateTime? _startDate;
   DateTime? _endDate;
 
-  // Selecciones para cada sección
-  DataSource _diarioSelection = DataSource.url;
   DataSource _rangoSelection = DataSource.url;
 
   // Método para seleccionar una fecha (inicio o fin)
@@ -54,51 +52,14 @@ class _MetricasState extends State<Metricas> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Sección "Diario"
-            Card(
-              elevation: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                      'Diario',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    // Opciones: URL o Archivos Office
-                    DropdownButton<DataSource>(
-                      value: _diarioSelection,
-                      items: DataSource.values.map((DataSource option) {
-                        return DropdownMenuItem<DataSource>(
-                          value: option,
-                          child: Text(option == DataSource.url ? 'URL' : 'Archivos Office'),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _diarioSelection = newValue!;
-                        });
-                      },
-                    ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    // Gráfica "Diario"
-                    SizedBox(
-                      height: 200,
-                      width: double.infinity,
-                      child: Graficas(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+             Text(
+              'Total: 200 Bytes',
+              style: TextStyle(fontSize: 23,
+              fontWeight: FontWeight.bold,),
+              textAlign: TextAlign.center,
+          
+        ),
+        const SizedBox(height: 10),
             // Sección "Rango de Fechas"
             Card(
               elevation: 4,
@@ -106,12 +67,7 @@ class _MetricasState extends State<Metricas> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Rango de Fechas',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
+                  children: [                
                     // Opciones: URL o Archivos Office
                     DropdownButton<DataSource>(
                       value: _rangoSelection,
@@ -128,6 +84,7 @@ class _MetricasState extends State<Metricas> {
                       },
                     ),
                     const SizedBox(height: 10),
+            
                     // Selección de fechas de inicio y fin
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
