@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
+import 'package:mobile_application/login/login_service.dart';
+import 'package:mobile_application/styles.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -10,17 +12,9 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
 
-  ButtonStyle styleButton = ElevatedButton.styleFrom(
-    fixedSize: const Size(300,30),
-      backgroundColor: Colors.deepPurple[400],
-      shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8), // Bordes cuadrados
-      ),
-      textStyle: const TextStyle(
-        fontSize: 15,
-      ),
-      foregroundColor: Colors.white,
-  );
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final loginService = LoginService();
 
   @override
   Widget build(BuildContext context) {
@@ -44,24 +38,42 @@ class _LoginState extends State<Login> {
                 Icon(Icons.picture_as_pdf, size: 100, color: Colors.deepPurple[400]),
                 const SizedBox(height: 20),
                 TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Username',
                   ),
                 ),
+
                 const SizedBox(height: 10),
                 TextField(
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Password',
                   ),
                 ),
+
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () {
-                    Get.toNamed('/menu');
+                  onPressed: () async {
+                   
+                    final success = await loginService.login(
+                      _usernameController.text,
+                      _passwordController.text,
+                    );
+                    if (success) {
+                      Get.offNamed('/menu'); // Redirigir a la pantalla de menú
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Credenciales inválidas'),
+                        ),
+                      );
+                    }
+                    
                   },
-                  style:  styleButton,
+                  style: CustomButtonStyle.primaryStyle,
                   child: const Text('Iniciar Sesión'),
                 ),
         ]
