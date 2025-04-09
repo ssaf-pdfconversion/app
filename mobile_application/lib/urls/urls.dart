@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_application/styles.dart';
+import 'package:mobile_application/urls/urls_service.dart';
 
 class Urls extends StatefulWidget {
   const Urls({super.key});
@@ -86,7 +87,20 @@ class _UrlsState extends State<Urls> {
             if(_urls.isNotEmpty)
               ElevatedButton(
                 onPressed: () {
-                  Get.toNamed('/descargarUrls');
+                  final urlsService = UrlsService();
+                  const urls = ['aaaaaa', 'bbbbbb', 'cccccc'];
+                  urlsService.urlConvert(urls).then((success) {
+                    if (success) {
+                      Get.snackbar('Éxito', 'URLs convertidas a PDF',
+                          backgroundColor: Colors.green[100],
+                          colorText: Colors.black);
+                    } else {
+                      Get.snackbar('Error', 'No se pudo convertir las URLs',
+                          backgroundColor: Colors.red[100],
+                          colorText: Colors.black);
+                    }
+                  });
+                
                 },
                 style: CustomButtonStyle.primaryStyle,
                 child: const Text('Convertir a PDF'),

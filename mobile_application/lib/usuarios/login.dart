@@ -79,6 +79,7 @@ class _LoginState extends State<Login> {
                           content: Text('Mensaje de Prueba'),
                         ),
                       );
+                      Get.offNamed('/menu'); 
                     }
                     
                   },
