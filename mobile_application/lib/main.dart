@@ -7,6 +7,7 @@ import 'package:mobile_application/menu/menu.dart';
 import 'package:mobile_application/metricas/metricas.dart';
 import 'package:mobile_application/urls/descargar_urls.dart';
 import 'package:mobile_application/urls/urls.dart';
+import 'package:mobile_application/usuarios/resgitro.dart';
 
 void main() {
   runApp(
@@ -20,6 +21,7 @@ void main() {
         GetPage(name: '/descargarDocs', page: ( ) => Descargar()),
         GetPage(name: '/descargarUrls', page: ( ) => DescargarUrls()),
         GetPage(name: '/metricas', page: () => Metricas()),
+        GetPage(name: '/registro', page: () => Registro()),
       ],
     ),
   );

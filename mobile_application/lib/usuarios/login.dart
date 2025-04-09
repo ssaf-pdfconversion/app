@@ -53,10 +53,10 @@ class _LoginState extends State<Login> {
                     labelText: 'Password',
                   ),
                 ),
-                Text(
-                  '¿No tienes cuenta?',
-                  style: TextStyle(color: Colors.deepPurple[400]),
-                ),
+                TextButton(onPressed: (){ Get.toNamed('/registro');}, 
+                child: Text('¿No tienes cuenta? Registrate aquí',
+                style: TextStyle(color: Colors.deepPurple[400]),
+                )),
 
                 const SizedBox(height: 10),
                 ElevatedButton(
@@ -69,14 +69,14 @@ class _LoginState extends State<Login> {
                     if (success) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Todo se logro conectar'),
+                          content: Text('Mensaje de Prueba'),
                         ),
                       );
                       Get.offNamed('/menu'); // Redirigir a la pantalla de menú
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Credenciales inválidas'),
+                          content: Text('Mensaje de Prueba'),
                         ),
                       );
                     }
