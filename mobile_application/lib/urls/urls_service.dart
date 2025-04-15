@@ -1,11 +1,18 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_application/config.dart';
+import 'package:mobile_application/usuarios/login_service.dart';
 
 class UrlsService {
   Future<bool> urlConvert(List<String> urls) async {
-  
-
+    
+    final LoginService loginService = LoginService();
+    final token = await loginService.getToken();
+    final userId = await loginService.getUserId();
+    if (token == null || userId == null) {
+      return false; // Token or userId not found
+    }
+    
     final Map<String, List<String>> data = {
       'urls': urls,
       

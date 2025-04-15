@@ -1,18 +1,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_application/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginService {
   Future<bool> login(String username, String password) async {
   
-
     final Map<String, String> data = {
       'username': username,
       'password': password,
     };
 
     try{
-
       final response = await http.post(
         Uri.parse('http://${Config.HOST}:${Config.PORT}/login'),
         headers: {
@@ -24,12 +23,13 @@ class LoginService {
       // ignore: avoid_print
       print(response);
       if (response.statusCode == 200) {
-        // Login successful
+        final data = json.decode(response.body);
+        final token = data['token'];
+        final userId = data['userId'];
+        saveToken(token);
+        saveUserId(userId);
         return true;
-      } else if (response.statusCode == 401) {
-        // Invalid credentials
-        return false;
-      } else{
+      }else{
         return false;
       }
     } catch (e) {
@@ -39,5 +39,23 @@ class LoginService {
     }
     // Simulate a network call
     
+  }
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
+
+  Future<void> saveUserId(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('userId', userId);
+  }
+
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+  Future<int?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('userId');
   }
 }

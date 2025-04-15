@@ -61,25 +61,16 @@ class _LoginState extends State<Login> {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () async {
-                   
                     final success = await loginService.login(
                       _usernameController.text,
                       _passwordController.text,
                     );
                     if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Mensaje de Prueba'),
-                        ),
-                      );
                       Get.offNamed('/menu'); // Redirigir a la pantalla de menú
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Mensaje de Prueba'),
-                        ),
-                      );
-                      Get.offNamed('/menu'); 
+                      Get.snackbar('Error', 'Usuario o contraseña incorrectos',
+                          backgroundColor: Colors.red[100],
+                          colorText: Colors.black);
                     }
                     
                   },

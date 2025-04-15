@@ -94,6 +94,7 @@ class _UrlsState extends State<Urls> {
                       Get.snackbar('Éxito', 'URLs convertidas a PDF',
                           backgroundColor: Colors.green[100],
                           colorText: Colors.black);
+                          Get.toNamed('/descargarUrls');
                     } else {
                       Get.snackbar('Error', 'No se pudo convertir las URLs',
                           backgroundColor: Colors.red[100],
