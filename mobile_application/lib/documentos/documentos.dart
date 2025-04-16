@@ -1,6 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:mobile_application/styles.dart';
+import 'package:mobile_application/documentos/documentos_service.dart';
 
 class Documentos extends StatefulWidget{
   const Documentos({super.key});
@@ -10,6 +12,7 @@ class Documentos extends StatefulWidget{
 }
 
 class _DocumentosState extends State<Documentos>{
+  final DocService documentosService = DocService();
 
   List<String> _fileNames = [];
 
@@ -83,8 +86,20 @@ class _DocumentosState extends State<Documentos>{
         if(_fileNames.isNotEmpty)
           ElevatedButton(
             onPressed: () {
-              // Acción para convertir archivos
-              Navigator.pushNamed(context, '/descargarDocs');
+              
+                  const urls = ['aaaaaa', 'bbbbbb', 'cccccc'];
+                  documentosService.officeConvert(urls).then((success) {
+                    if (success) {
+                      Get.snackbar('Éxito', 'URLs convertidas a PDF',
+                          backgroundColor: Colors.green[100],
+                          colorText: Colors.black);
+                          Get.toNamed('/descargarDocs');
+                    } else {
+                      Get.snackbar('Error', 'No se pudo convertir las URLs',
+                          backgroundColor: Colors.red[100],
+                          colorText: Colors.black);
+                    }
+                  });
             },
             style: CustomButtonStyle.primaryStyle,
             child: const Text('Convertir a PDF'),

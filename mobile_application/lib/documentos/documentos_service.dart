@@ -4,8 +4,8 @@ import 'package:mobile_application/config.dart';
 import 'package:mobile_application/usuarios/login_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UrlsService {
-  Future<bool> urlConvert(List<String> urls) async {
+class DocService {
+  Future<bool> officeConvert(List<String> urls) async {
     
     final LoginService loginService = LoginService();
     final token = await loginService.getToken();
@@ -15,7 +15,7 @@ class UrlsService {
     }
     
     final Map<String, dynamic> data = {
-      'urls': urls,
+      'files': urls,
       'userId': userId,
       
     };
@@ -23,7 +23,7 @@ class UrlsService {
     try{
 
       final response = await http.post(
-        Uri.parse('http://${Config.HOST}:${Config.PORT}/urlConvert'),
+        Uri.parse('http://${Config.HOST}:${Config.PORT}/officeConvert'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token
@@ -34,9 +34,9 @@ class UrlsService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-       
         final List<String> pdfsList = List<String>.from(data['pdfs']);
-        saveUrls(pdfsList);
+        print('PDFs: $pdfsList');
+        await saveOfiice(pdfsList);
         return true;
       } else if (response.statusCode == 401) {
         
@@ -53,22 +53,23 @@ class UrlsService {
     
   }
 
-  Future<void> saveUrls(List<String> urls) async {
+  Future<void> saveOfiice(List<String> urls) async {
+    print('holis');
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('arrayPdfsUrls', urls);
+    await prefs.setStringList('arrayPdfOffice', urls);
   }
 
   Future<void> delatePdfs() async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('arrayPdfsUrls')) {
-      await prefs.remove('arrayPdfsUrls');
+    if (prefs.containsKey('arrayPdfOffice')) {
+      await prefs.remove('arrayPdfOffice');
     }
   }
 
-  Future <List<String>?> getUrls() async {
+  Future <List<String>?> getOffice() async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('arrayPdfsUrls')) {
-      return prefs.getStringList('arrayPdfsUrls');
+    if (prefs.containsKey('arrayPdfOffice')) {
+      return prefs.getStringList('arrayPdfOffice');
     }
     return null;
   }

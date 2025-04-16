@@ -8,6 +8,7 @@ class DescargarUrls extends StatefulWidget {
   const DescargarUrls({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DescargarUrlsState createState() => _DescargarUrlsState();
 }
 
