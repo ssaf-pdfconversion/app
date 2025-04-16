@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_application/config.dart';
 import 'package:mobile_application/usuarios/login_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UrlsService {
   Future<bool> urlConvert(List<String> urls) async {
@@ -28,13 +29,15 @@ class UrlsService {
         body: json.encode(data),
         
       );
-      // ignore: avoid_print
-      print(response);
+
       if (response.statusCode == 200) {
-        // Login successful
+        final data = json.decode(response.body);
+       
+        final List<String> pdfsList = List<String>.from(data['pdfs']);
+        saveUrls(pdfsList);
         return true;
       } else if (response.statusCode == 401) {
-        // Invalid credentials
+        
         return false;
       } else{
         return false;
@@ -46,5 +49,25 @@ class UrlsService {
     }
     // Simulate a network call
     
+  }
+
+  Future<void> saveUrls(List<String> urls) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('arrayPdfsUrls', urls);
+  }
+
+  Future<void> delatePdfs() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('arrayPdfsUrls')) {
+      await prefs.remove('arrayPdfsUrls');
+    }
+  }
+
+  Future <List<String>?> getUrls() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('arrayPdfsUrls')) {
+      return prefs.getStringList('arrayPdfsUrls');
+    }
+    return null;
   }
 }
