@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile_application/metricas/graficas.dart';
+import 'package:mobile_application/metricas/metricas_service.dart';
 
 enum DataSource { url, office }
 
@@ -15,29 +16,99 @@ class _MetricasState extends State<Metricas> {
   // Variables para el rango de fechas
   DateTime? _startDate;
   DateTime? _endDate;
+  int? _total;
 
   DataSource _rangoSelection = DataSource.url;
 
-  // Método para seleccionar una fecha (inicio o fin)
-  Future<void> _pickDate({required bool isStart}) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _startDate = picked;
-        } else {
-          _endDate = picked;
-        }
-      });
-    }
+
+  @override
+  void initState() {
+    super.initState();
+    _getTotal();
+  }
+  // Método para obtener el total de métricas
+  Future<void> _getTotal() async {
+    final total = await MetricService().metricTotal();
+    setState(() {
+      _total = total;
+    });
   }
 
+  Future<void> _getStatistics() async {
+    if (_startDate != null && _endDate != null) {
+      final result = await MetricService().statistics(_startDate!, _endDate!, _rangoSelection.name);
+      if (result) {
+        
+        // Actualizar la gráfica con los datos obtenidos
+        setState(() {});
+      } else {
+        // Manejar error
+      }
+    } else {
+      // Manejar error de fechas no seleccionadas
+    }
+  }
+  // Método para seleccionar una fecha (inicio o fin)
+  Future<void> _pickDate({ required bool isStart }) async {
+  final DateTime today = DateTime.now();
   
+  // Defaults del diálogo
+  DateTime firstDate = DateTime(2000);
+  DateTime lastDate  = today;
+  DateTime initialDate = today;
+
+  if (isStart) {
+    // --- Picker de START ---
+    // 1) El tope máximo es un día antes de _endDate (si existe), o hoy si no.
+    if (_endDate != null) {
+      lastDate = _endDate!.subtract(const Duration(days: 1));
+    }
+
+    // 2) InitialDate: o el valor previo de _startDate, o ese lastDate ajustado
+    initialDate = _startDate ?? lastDate;
+
+    // 3) Clamps: nos aseguramos de que initialDate esté en [firstDate, lastDate]
+    if (initialDate.isBefore(firstDate)) initialDate = firstDate;
+    if (initialDate.isAfter(lastDate))  initialDate = lastDate;
+
+  } else {
+    // --- Picker de END ---
+    // 1) El tope inferior es un día después de _startDate (si existe)
+    if (_startDate != null) {
+      firstDate = _startDate!.add(const Duration(days: 1));
+    }
+
+    // 2) InitialDate: o el valor previo de _endDate, o hoy
+    initialDate = _endDate ?? today;
+
+    // 3) Clamps: nos aseguramos de que initialDate esté en [firstDate, today]
+    if (initialDate.isBefore(firstDate)) initialDate = firstDate;
+    if (initialDate.isAfter(today))     initialDate = today;
+
+    // lastDate ya es `today` por defecto
+  }
+
+  final DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: initialDate,
+    firstDate: firstDate,
+    lastDate: lastDate,
+  );
+
+  if (picked != null) {
+    setState(() {
+      if (isStart) {
+        _startDate = picked;
+        // Si após elegir startDate rompemos la lógica con endDate, la reseteamos
+        if (_endDate != null && _endDate!.isBefore(_startDate!)) {
+          _endDate = null;
+        }
+      } else {
+        _endDate = picked;
+      }
+    });
+  }
+}
 
 
   @override
@@ -52,13 +123,28 @@ class _MetricasState extends State<Metricas> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-             Text(
-              'Total: 200 Bytes',
-              style: TextStyle(fontSize: 23,
-              fontWeight: FontWeight.bold,),
+            _total == null
+          ? CircularProgressIndicator()
+          : _total == -1
+          ? Text(
+              'Información no disponible',
+              style: TextStyle(
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
-          
-        ),
+            )
+          // si todo va bien, mostrar total
+          : Text(
+              'Total: $_total Bytes',
+              style: TextStyle(
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+
         const SizedBox(height: 10),
             // Sección "Rango de Fechas"
             Card(
@@ -115,6 +201,19 @@ class _MetricasState extends State<Metricas> {
                         ),
                         )
                       ],
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        _getStatistics();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple[300],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Obtener estadísticas'),
                     ),
                     const SizedBox(height: 10),
                     // Gráfica "Rango de Fechas"
