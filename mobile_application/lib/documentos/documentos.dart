@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:io';
 import 'package:mobile_application/styles.dart';
 import 'package:mobile_application/documentos/documentos_service.dart';
 
@@ -15,10 +16,11 @@ class _DocumentosState extends State<Documentos>{
   final DocService documentosService = DocService();
 
   List<String> _fileNames = [];
+  final List<File> _files = [];
 
   Future<void> _openFileExplorer() async {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
+      allowMultiple: false,
       type: FileType.custom,
       allowedExtensions: ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
     );
@@ -28,6 +30,9 @@ class _DocumentosState extends State<Documentos>{
         for (var file in result.files) {
           if (!_fileNames.contains(file.name)) {
             _fileNames.add(file.name);
+          }
+          if (!_files.any((f) => f.path == file.path)) {
+            _files.add(File(file.path!));
           }
         }
       });
@@ -68,7 +73,7 @@ class _DocumentosState extends State<Documentos>{
         const SizedBox(height: 10),
         ElevatedButton(onPressed: _openFileExplorer,
           style: CustomButtonStyle.primaryStyle,
-          child: Text('Seleccionar Archivos'),
+          child: Text('Selecciona tus Archivos',),
         ),
         Expanded(
               child: _fileNames.isNotEmpty
@@ -86,9 +91,7 @@ class _DocumentosState extends State<Documentos>{
         if(_fileNames.isNotEmpty)
           ElevatedButton(
             onPressed: () {
-              
-                  const urls = ['aaaaaa', 'bbbbbb', 'cccccc'];
-                  documentosService.officeConvert(urls).then((success) {
+                  documentosService.officeConvert(_fileNames,_files).then((success) {
                     if (success) {
                       Get.snackbar('Éxito', 'URLs convertidas a PDF',
                           backgroundColor: Colors.green[100],

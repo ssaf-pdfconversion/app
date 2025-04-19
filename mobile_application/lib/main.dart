@@ -12,7 +12,7 @@ import 'package:mobile_application/usuarios/resgitro.dart';
 void main() {
   runApp(
     GetMaterialApp(
-      initialRoute: '/login',
+      initialRoute: '/menu',
       getPages: [
         GetPage(name: '/login', page: () => Login()),
         GetPage(name: '/menu', page: () => Menu()),
