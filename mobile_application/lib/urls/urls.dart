@@ -88,8 +88,7 @@ class _UrlsState extends State<Urls> {
               ElevatedButton(
                 onPressed: () {
                   final urlsService = UrlsService();
-                  const urls = ['aaaaaa', 'bbbbbb', 'cccccc'];
-                  urlsService.urlConvert(urls).then((success) {
+                  urlsService.urlConvert(_urls).then((success) {
                     if (success) {
                       Get.snackbar('Éxito', 'URLs convertidas a PDF',
                           backgroundColor: Colors.green[100],

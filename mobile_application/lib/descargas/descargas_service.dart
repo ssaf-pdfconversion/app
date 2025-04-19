@@ -20,6 +20,7 @@ class DescargasService{
 
       final File file = File(filePath);
       await file.writeAsBytes(bytes); 
+      print('PDF guardado en: $filePath');
     }
     return true;
     }

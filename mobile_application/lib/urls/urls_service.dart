@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UrlsService {
   Future<bool> urlConvert(List<String> urls) async {
-    
+    print(urls);
     final LoginService loginService = LoginService();
     final token = await loginService.getToken();
     final userId = await loginService.getUserId();
