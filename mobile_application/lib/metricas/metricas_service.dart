@@ -3,6 +3,7 @@ import 'package:mobile_application/config.dart';
 import 'package:mobile_application/usuarios/login_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class MetricService{
   Future<int> metricTotal() async{
@@ -61,6 +62,12 @@ class MetricService{
     }
     print('fileType: $fileType');
 
+
+    // formateador yyyy-MM-dd
+    final DateFormat fmt = DateFormat('yyyy-MM-dd');
+    final String start = fmt.format(startDate);  // e.g. "2025-04-01"
+    final String end   = fmt.format(endDate);
+
     if(fileType == 'url'){
       fileTypeId = 2;
       
@@ -72,10 +79,12 @@ class MetricService{
     try{
       final Map<String, dynamic> data = {
         'userId': userId,
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
+        'startDate': start,
+        'endDate': end,
         'fileTypeId': fileTypeId,
       };
+
+      print('data: $data');
     
       final response = await http.post(
         Uri.parse('http://${Config.HOST}:${Config.PORT}/statistics'),

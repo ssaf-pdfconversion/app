@@ -14,12 +14,17 @@ class DocService {
     if (token == null || userId == null) {
       return false; // Token or userId not found
     }
+
+    print(names);
+    print(base64Files);
     
     final Map<String, dynamic> data = {
-      'files': [names, base64Files],
+      'files':  base64Files,
+      'names': names,
       'userId': userId,
       
     };
+    print(data);
     try{
 
       final response = await http.post(
@@ -33,9 +38,23 @@ class DocService {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List<String> pdfsList = List<String>.from(data['pdfs']);
-        await saveOfiice(pdfsList);
+        final Map<String, dynamic> decoded = json.decode(response.body);
+
+        // 1. Extraer json de 'pdfs.file', que puede ser List o Map
+        final dynamic fileJson = decoded['pdfs']['file'];
+
+        // 2. Normalizar siempre a List<dynamic>
+        final List<dynamic> files = fileJson is List
+            ? fileJson
+            : [fileJson];
+
+        // 3. Extraer sólo el campo 'data' de cada objeto
+        final List<String> dataList = files
+            .map((fileEntry) => fileEntry['data'] as String)
+            .toList();
+
+        print('PDFs convertidos (base64): $dataList');
+        await saveOfiice(dataList);
         return true;
       } else if (response.statusCode == 401) {
         
