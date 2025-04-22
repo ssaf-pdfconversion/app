@@ -99,7 +99,7 @@ class _RegistroState extends State<Registro>
                     _emailController.text,
                   );
                   if (sucess) {
-                    Get.offNamed('/menu');
+                    Get.offNamed('/login');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

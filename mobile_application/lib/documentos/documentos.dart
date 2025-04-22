@@ -14,6 +14,7 @@ class Documentos extends StatefulWidget{
 
 class _DocumentosState extends State<Documentos>{
   final DocService documentosService = DocService();
+  final bool cargando = false;
 
   List<String> _fileNames = [];
   final List<File> _files = [];

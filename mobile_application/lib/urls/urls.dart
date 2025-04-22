@@ -30,6 +30,36 @@ class _UrlsState extends State<Urls> {
     }
   }
 
+  void showLoadingDialog(BuildContext context, { String text = 'Cargando…' }) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // impide cerrar al pulsar fuera
+    // ignore: deprecated_member_use
+    builder: (_) => WillPopScope( // opcional: bloquea botón “atrás”
+      onWillPop: () async => false,
+      child: Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Text(text, style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+void hideLoadingDialog(BuildContext context) {
+  Navigator.of(context, rootNavigator: true).pop();
+}
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,14 +117,19 @@ class _UrlsState extends State<Urls> {
             if(_urls.isNotEmpty)
               ElevatedButton(
                 onPressed: () {
+                  showLoadingDialog(context);
                   final urlsService = UrlsService();
                   urlsService.urlConvert(_urls).then((success) {
                     if (success) {
+                      // ignore: use_build_context_synchronously
+                      hideLoadingDialog(context);
                       Get.snackbar('Éxito', 'URLs convertidas a PDF',
                           backgroundColor: Colors.green[100],
                           colorText: Colors.black);
                           Get.toNamed('/descargarUrls');
                     } else {
+                       // ignore: use_build_context_synchronously
+                      hideLoadingDialog(context);
                       Get.snackbar('Error', 'No se pudo convertir las URLs',
                           backgroundColor: Colors.red[100],
                           colorText: Colors.black);
