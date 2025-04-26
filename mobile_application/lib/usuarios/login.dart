@@ -24,6 +24,7 @@ class _LoginState extends State<Login> {
         title: const Text('Login'),
         backgroundColor: Colors.deepPurple[300],
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
       ),
 
       body: Center(
@@ -52,6 +53,7 @@ class _LoginState extends State<Login> {
                     border: OutlineInputBorder(),
                     labelText: 'Password',
                   ),
+                  obscureText: true,
                 ),
                 TextButton(onPressed: (){ Get.toNamed('/registro');}, 
                 child: Text('¿No tienes cuenta? Registrate aquí',

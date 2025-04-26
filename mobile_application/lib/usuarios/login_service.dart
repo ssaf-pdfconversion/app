@@ -58,4 +58,10 @@ class LoginService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('userId');
   }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('userId');
+  }
 }

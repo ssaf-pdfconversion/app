@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_application/usuarios/cerrar_sesion.dart';
 
 import 'package:mobile_application/styles.dart';
 import 'package:mobile_application/descargas/descargas_service.dart';
@@ -25,6 +26,9 @@ class _DescargarState extends State<Descargar> {
         title: const Text('Descargar Archivos'),
         backgroundColor: Colors.deepPurple[300],
         foregroundColor: Colors.white,
+        actions: [
+          CerrarSesion()
+        ],
       ),
       body: Center(
         child: Container(

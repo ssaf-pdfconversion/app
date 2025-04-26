@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_application/styles.dart';
 import 'package:mobile_application/urls/urls_service.dart';
+import 'package:mobile_application/usuarios/cerrar_sesion.dart';
 
 class Urls extends StatefulWidget {
   const Urls({super.key});
@@ -67,6 +68,9 @@ void hideLoadingDialog(BuildContext context) {
         title: const Text('Agregar URLs'),
         backgroundColor: Colors.deepPurple[300],
         foregroundColor: Colors.white,
+         actions: [
+          CerrarSesion()
+        ],
       ),
 
       body: Padding(
@@ -78,6 +82,7 @@ void hideLoadingDialog(BuildContext context) {
             style: TextStyle(fontSize: 23,
             fontWeight: FontWeight.bold,),
             textAlign: TextAlign.center,
+            
             
             ),
           const SizedBox(height: 10),

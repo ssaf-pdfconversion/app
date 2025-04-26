@@ -47,7 +47,7 @@ class CustomSquareButton extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: 80,
+            size: 60,
             color: Colors.white70,
           ),
           const SizedBox(height: 16),

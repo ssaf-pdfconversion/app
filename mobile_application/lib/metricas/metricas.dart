@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/metricas/graficas.dart';
 import 'package:mobile_application/metricas/metricas_service.dart';
+import 'package:mobile_application/usuarios/cerrar_sesion.dart';
 
 enum DataSource { url, office }
 
@@ -16,7 +17,9 @@ class _MetricasState extends State<Metricas> {
   // Variables para el rango de fechas
   DateTime? _startDate;
   DateTime? _endDate;
-  int? _total;
+  double? _total;
+  bool? grafica;
+  List<ChartData> _chartData = [];
 
   DataSource _rangoSelection = DataSource.url;
 
@@ -36,16 +39,21 @@ class _MetricasState extends State<Metricas> {
 
   Future<void> _getStatistics() async {
     if (_startDate != null && _endDate != null) {
-      final result = await MetricService().statistics(_startDate!, _endDate!, _rangoSelection.name);
-      if (result) {
-        
-        // Actualizar la gráfica con los datos obtenidos
-        setState(() {});
+      List<ChartData> result = await MetricService().statistics(_startDate!, _endDate!, _rangoSelection.name);
+      if (result.isNotEmpty) { 
+        setState(() {
+          grafica = true;
+          _chartData = result;
+        });
       } else {
-        // Manejar error
+        setState(() {
+          grafica = false;
+        });// Manejar error
       }
     } else {
-      // Manejar error de fechas no seleccionadas
+      setState(() {
+        grafica = false;
+      });// Manejar error de fechas no seleccionadas
     }
   }
   // Método para seleccionar una fecha (inicio o fin)
@@ -118,28 +126,37 @@ class _MetricasState extends State<Metricas> {
         title: const Text('Métricas'),
         backgroundColor: Colors.deepPurple[300],
         foregroundColor: Colors.white,
+         actions: [
+          CerrarSesion()
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _total == null
-          ? CircularProgressIndicator()
-          : _total == -1
-          ? Text(
-              'Información no disponible',
+            Text(
+              'Total de MB convertidos:',
               style: TextStyle(
                 fontSize: 23,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
+            ),
+            _total == null
+          ? CircularProgressIndicator()
+          : _total == -1.0
+          ? Text(
+              'Información no disponible',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+              textAlign: TextAlign.center,
             )
           // si todo va bien, mostrar total
           : Text(
-              'Total: $_total Bytes',
+              '$_total MB',
               style: TextStyle(
                 fontSize: 23,
-                fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
@@ -153,7 +170,16 @@ class _MetricasState extends State<Metricas> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [                
+                  children: [
+
+                    Text(
+              'MB convertidos por día en un intervalo de tiempo:',
+              style: TextStyle(
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),                
                     // Opciones: URL o Archivos Office
                     DropdownButton<DataSource>(
                       value: _rangoSelection,
@@ -212,16 +238,17 @@ class _MetricasState extends State<Metricas> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        foregroundColor: Colors.white,
                       ),
+                      
                       child: const Text('Obtener estadísticas'),
                     ),
                     const SizedBox(height: 10),
-                    // Gráfica "Rango de Fechas"
-                    SizedBox(
-                      height: 200,
-                      width: double.infinity,
-                      child: Graficas(),
-                    ),
+                    grafica == false ? Text('Datos no disponibles')
+                    : SizedBox(
+                      child: buildBarChart(_chartData), // Gráfica de barras
+                    )                   // Gráfica "Rango de Fechas"
+                    
                   ],
                 ),
               ),

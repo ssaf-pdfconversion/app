@@ -4,9 +4,10 @@ import 'package:mobile_application/usuarios/login_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:mobile_application/metricas/graficas.dart';
 
 class MetricService{
-  Future<int> metricTotal() async{
+  Future<double>metricTotal() async{
     print('metricas service');
     final LoginService loginService = LoginService();
     final token = await loginService.getToken();
@@ -31,13 +32,14 @@ class MetricService{
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final total = data['data'] as int;
-        return total;
+        final total = data['data'];
+        final number = double.tryParse(total.toString()) ?? 0.0; // Convert to double
+        return number;
       } else if (response.statusCode == 401) {
         
-        return -1;
+        return -1.0;
       } else{
-        return -1;
+        return -1.0;
       }
       
 
@@ -52,15 +54,14 @@ class MetricService{
 
   }
 
-  Future<bool> statistics(DateTime startDate, DateTime endDate, String fileType) async{
+  Future<List<ChartData>> statistics(DateTime startDate, DateTime endDate, String fileType) async{
     final LoginService loginService = LoginService();
     final token = await loginService.getToken();
     final userId = await loginService.getUserId();
     int fileTypeId = 0; // Default value
     if (token == null || userId == null) {
-      return false; // Token or userId not found
+      return []; // Token or userId not found
     }
-    print('fileType: $fileType');
 
 
     // formateador yyyy-MM-dd
@@ -84,8 +85,6 @@ class MetricService{
         'fileTypeId': fileTypeId,
       };
 
-      print('data: $data');
-    
       final response = await http.post(
         Uri.parse('http://${Config.HOST}:${Config.PORT}/statistics'),
         headers: {
@@ -96,19 +95,24 @@ class MetricService{
       );
 
       if (response.statusCode == 200) {
-        return true;
+        final Map<String, dynamic> decoded = json.decode(response.body);
+        final dynamic fileJson = decoded['data'];
+        final List<ChartData> chartdata = convertRawStatsToChartData(fileJson);
+        
+
+        return chartdata;
       } else if (response.statusCode == 401) {
         
-        return false;
+        return [];
       } else{
-        return false;
+        return [];
       }
       
 
     }catch(e){
       // ignore: avoid_print
       print('Error Catch: $e');
-      return false;
+      return [];
     }
   }
 }

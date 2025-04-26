@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'dart:io';
 import 'package:mobile_application/styles.dart';
 import 'package:mobile_application/documentos/documentos_service.dart';
+import 'package:mobile_application/usuarios/cerrar_sesion.dart';
 
 class Documentos extends StatefulWidget{
   const Documentos({super.key});
@@ -12,39 +13,73 @@ class Documentos extends StatefulWidget{
   State<Documentos> createState() => _DocumentosState();
 }
 
+
 class _DocumentosState extends State<Documentos>{
   final DocService documentosService = DocService();
   final bool cargando = false;
 
-  List<String> _fileNames = [];
-  final List<File> _files = [];
+   List<String> fileNames = [];
+
+  List<File> files = [];
 
   Future<void> _openFileExplorer() async {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
-      type: FileType.custom,
-      allowedExtensions: ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
-    );
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    allowMultiple: true,
+    type: FileType.custom,
+    allowedExtensions: ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
+  );
 
-    if (result != null) {
-      setState(() {
-        for (var file in result.files) {
-          if (!_fileNames.contains(file.name)) {
-            _fileNames.add(file.name);
-          }
-          if (!_files.any((f) => f.path == file.path)) {
-            _files.add(File(file.path!));
-          }
+  if (result != null) {
+    print('Entro al primer if');
+    print(result.paths);
+    final temporaryFiles = result.paths
+        .where((path) => path != null)
+        .map((path) => File(path!))
+        .toList();
+
+    setState(() {
+      for (var file in temporaryFiles) {
+        if (!files.contains(file)) {
+          files.add(file);
+          fileNames.add(file.path.split('/').last);
         }
-      });
-    } else {
-      // Usuario canceló la selección
-      setState(() {
-        _fileNames = [];
-      });
-    }
+      }print(files);
+      print(fileNames);
+    });
   }
+ 
+}
+        
 
+ void showLoadingDialog(BuildContext context, { String text = 'Cargando…' }) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // impide cerrar al pulsar fuera
+    // ignore: deprecated_member_use
+    builder: (_) => WillPopScope( // opcional: bloquea botón “atrás”
+      onWillPop: () async => false,
+      child: Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Text(text, style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+void hideLoadingDialog(BuildContext context) {
+  Navigator.of(context, rootNavigator: true).pop();
+}
   @override
   Widget build(BuildContext context) {
   return Scaffold(
@@ -52,6 +87,9 @@ class _DocumentosState extends State<Documentos>{
       title: const Text('Archivos'),
       backgroundColor: Colors.deepPurple[300],
       foregroundColor: Colors.white,
+       actions: [
+          CerrarSesion()
+        ],
     ), 
 
     body: Center(
@@ -77,28 +115,37 @@ class _DocumentosState extends State<Documentos>{
           child: Text('Selecciona tus Archivos',),
         ),
         Expanded(
-              child: _fileNames.isNotEmpty
+              child: fileNames.isNotEmpty
                   ? ListView.builder(
-                      itemCount: _fileNames.length,
+                      itemCount: fileNames.length,
                       itemBuilder: (context, index) {
                         return ListTile(
                           leading: const Icon(Icons.insert_drive_file),
-                          title: Text(_fileNames[index]),
+                          title: Text(fileNames[index]),
                         );
                       },
                     )
-                  : const SizedBox(),
+                  : const SizedBox( child:
+                    Text('No hay archivos seleccionados',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
         ),
-        if(_fileNames.isNotEmpty)
+        if(fileNames.isNotEmpty)
           ElevatedButton(
             onPressed: () {
-                  documentosService.officeConvert(_fileNames,_files).then((success) {
+              showLoadingDialog(context, text: 'Convirtiendo...'); // ignore: use_build_context_synchronously
+                      
+                  documentosService.officeConvert(fileNames,files).then((success) {
                     if (success) {
+                      hideLoadingDialog(context); // ignore: use_build_context_synchronously
                       Get.snackbar('Éxito', 'URLs convertidas a PDF',
                           backgroundColor: Colors.green[100],
                           colorText: Colors.black);
                           Get.toNamed('/descargarDocs');
                     } else {
+                      hideLoadingDialog(context); // ignore: use_build_context_synchronously
                       Get.snackbar('Error', 'No se pudo convertir las URLs',
                           backgroundColor: Colors.red[100],
                           colorText: Colors.black);

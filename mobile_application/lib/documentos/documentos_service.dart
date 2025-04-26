@@ -11,6 +11,7 @@ class DocService {
     final token = await loginService.getToken();
     final userId = await loginService.getUserId();
     final List<String> base64Files = await covertFiles64(files);
+    print(base64Files);
     if (token == null || userId == null) {
       return false; // Token or userId not found
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_application/styles.dart';
+import 'package:mobile_application/usuarios/cerrar_sesion.dart';
 
 class Menu extends StatelessWidget{
   const Menu({super.key});
@@ -13,6 +14,9 @@ class Menu extends StatelessWidget{
         backgroundColor: Colors.deepPurple[300],
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
+         actions: [
+          CerrarSesion()
+        ],
       ),
       body: Center(
         child:  SingleChildScrollView(

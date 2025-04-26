@@ -13,12 +13,12 @@ class Registro extends StatefulWidget {
 class _RegistroState extends State<Registro>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _apellidoController = TextEditingController();  
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
-  final registerService = RegisterService();
+  final _usernameController = TextEditingController();
+  final _nombreController   = TextEditingController();
+  final _apellidoController = TextEditingController();
+  final _emailController    = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _registerService    = RegisterService();
 
   @override
   void initState() {
@@ -29,89 +29,166 @@ class _RegistroState extends State<Registro>
   @override
   void dispose() {
     _controller.dispose();
+    _usernameController.dispose();
+    _nombreController.dispose();
+    _apellidoController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onRegister() async {
+    final success = await _registerService.register(
+      _usernameController.text.trim(),
+      _passwordController.text,
+      _nombreController.text.trim(),
+      _apellidoController.text.trim(),
+      _emailController.text.trim(),
+    );
+    if (success) {
+      Get.offNamed('/login');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error en el registro')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // 1. Medidas de pantalla
+    final size        = MediaQuery.of(context).size;
+    final isWide     = size.width > 600;
+    final formWidth  = isWide ? 500.0 : size.width * 0.9;
+    final iconSize   = isWide ? 120.0 : 80.0;
+    final fieldWidth = double.infinity; // ocupa todo el ancho del form
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Registro'),
         backgroundColor: Colors.deepPurple[300],
         foregroundColor: Colors.white,
+        
       ),
-      body: Center(
-        child: Container(
-          margin: const EdgeInsets.all(10.0),
-          width: 300,
-          height: 500,
-          child: Column(
-            children: [
-              Icon(Icons.perm_contact_calendar, size: 100, color: Colors.deepPurple[400]),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Usuario',
-                ),
-              ),
-              TextField(
-                controller: _nombreController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Nombre',
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _apellidoController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Apellido',
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Email',
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Contraseña',
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  final sucess = await registerService.register(
-                    _usernameController.text,
-                    _passwordController.text,
-                    _nombreController.text,
-                    _apellidoController.text,
-                    _emailController.text,
-                  );
-                  if (sucess) {
-                    Get.offNamed('/login');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Error en el registro'),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: formWidth),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.perm_contact_calendar,
+                    size: iconSize,
+                    color: Colors.deepPurple[400],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Username
+                  SizedBox(
+                    width: fieldWidth,
+                    child: TextField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Usuario',
                       ),
-                    );
-                  }
-                },
-                style: CustomButtonStyle.primaryStyle,
-                child: const Text('Registrar'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Nombre / Apellido en fila si es ancho
+                  if (isWide)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _nombreController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Nombre',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextField(
+                            controller: _apellidoController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Apellido',
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  else ...[
+                    SizedBox(
+                      width: fieldWidth,
+                      child: TextField(
+                        controller: _nombreController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Nombre',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: fieldWidth,
+                      child: TextField(
+                        controller: _apellidoController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Apellido',
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+
+                  // Email
+                  SizedBox(
+                    width: fieldWidth,
+                    child: TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Email',
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Password
+                  SizedBox(
+                    width: fieldWidth,
+                    child: TextField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Contraseña',
+                      ),
+                      obscureText: true,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Botón Registrar
+                  SizedBox(
+                    width: fieldWidth,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: CustomButtonStyle.primaryStyle,
+                      onPressed: _onRegister,
+                      child: const Text('Registrar'),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
